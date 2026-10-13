@@ -9,6 +9,9 @@ clang \
     -Wall \
     -Wextra \
     src/main.c \
+    src/player.c \
+    src/map.c \
+    src/room.c \
     -o build/game \
     $(pkg-config --cflags --libs raylib)
 
