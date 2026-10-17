@@ -18,6 +18,9 @@ int charToTile(char ch, Tile *tile) {
     case 'P':
         *tile = (Tile) { .type = SPAWN, .walkable = true, .interactable = false };
         break;
+    case 'C':
+        *tile = (Tile) { .type = CHEST, .walkable = false, .interactable = true };
+        break;
     default:
         TraceLog(LOG_ERROR, "Undefined Tile '%c'", ch);
         return -1;
@@ -165,7 +168,9 @@ Color getTileColor(const Tile *tile) {
     case WALL:
         return GRAY;
     case FLOOR:
-        return DARKGREEN;
+        return DARKGREEN; 
+    case CHEST:
+        return PURPLE;
     default:
         return PINK;
     }

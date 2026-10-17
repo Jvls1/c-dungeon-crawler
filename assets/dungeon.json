@@ -12,6 +12,14 @@
                     "destinationDoorId": 3,
                     "destinationSpawnOffset": "UP"
                 }
+            ],
+            "chests": [
+                {
+                    "id": 1, 
+                    "x": 9,
+                    "y": 4,
+                    "open": false
+                }
             ]
         },
         {
@@ -34,7 +42,8 @@
                     "destinationDoorId": 1,
                     "destinationSpawnOffset": "DOWN"
                 }
-            ]
+            ],
+            "chests": []
         },
         {
             "id": 3,
@@ -48,7 +57,8 @@
                     "destinationDoorId": 2,
                     "destinationSpawnOffset": "LEFT"
                 }
-            ]
+            ],
+            "chests": []
         }
     ]
 }

@@ -13,7 +13,8 @@ typedef enum {
     FLOOR,
     WALL,
     DOOR,
-    SPAWN
+    SPAWN,
+    CHEST
 } TileType;
 
 typedef struct {

@@ -3,6 +3,7 @@
 #include <stdlib.h>
 
 int handleRoomInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents);
+int handleChestInteraction(Dungeon *dungeon, GameEvents *gameEvents);
 
 int handleInterationRequest(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents) { 
     gameEvents->interactinoRequested = false;
@@ -19,6 +20,9 @@ int handleInterationRequest(Player *player, Map *map, Dungeon *dungeon, GameEven
     {
     case DOOR:
         return handleRoomInteraction(player, map, dungeon, gameEvents);
+    case CHEST: 
+        return handleChestInteraction(dungeon, gameEvents);
+        break;
     default:
         TraceLog(LOG_WARNING, "Interactable without interaction function");
         break;
@@ -84,6 +88,31 @@ int handleRoomInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents
     *map = nextMap;
     *player = nextPlayer;
     dungeon->currentRoomId = destinationRoom->id;   
+
+    return 0;
+}
+
+int handleChestInteraction(Dungeon *dungeon, GameEvents *gameEvents) { 
+    Room *currentRoom = getCurrentRoom(dungeon);
+
+    if (currentRoom == NULL) { 
+        TraceLog(LOG_ERROR, "Current Room not found");
+        return -1;
+    }
+    
+    Chest *chest = findChestByEvent(currentRoom, gameEvents);
+    
+    if (chest == NULL) { 
+        TraceLog(LOG_ERROR, "Chest not found");
+        return -1;
+    }
+
+    if (chest->isOpen) { 
+        TraceLog(LOG_INFO, "Chest alredy opened");
+        return 0;
+    }
+
+    chest->isOpen = true;
 
     return 0;
 }

@@ -23,3 +23,16 @@ const Door *findDoorById(const Room *room, const int doorId) {
     }
     return door;
 }
+
+Chest *findChestByEvent(const Room *room, const GameEvents *gameEvents) {
+    Chest *chest = NULL;
+    for (int i = 0; i < room->chestCount; i++) {
+        if (room->chests[i].x == gameEvents->tileX &&
+            room->chests[i].y == gameEvents->tileY
+        ) {
+            chest = &room->chests[i];
+            TraceLog(LOG_INFO, "Chest Id: %i", chest->id);
+        }
+    }
+    return chest;
+}

@@ -71,7 +71,7 @@ int changePlayerPosition(Player *player, const Map *map, int x, int y, SpawnOffs
     return 0;
 }
 
-void handleInteraction(const Player *player, const Map *map, Vector2 position, GameEvents *gameEvents) {
+void registerInteraction(const Player *player, const Map *map, Vector2 position, GameEvents *gameEvents) {
     int tileX = position.x / RENDER_TILE_SIZE;
     int tileY = position.y / RENDER_TILE_SIZE;
     Tile tile;
@@ -90,20 +90,11 @@ void handleInteraction(const Player *player, const Map *map, Vector2 position, G
         return;
     }
     
-    TraceLog(LOG_DEBUG, "Handling Interaction on Tile: X: %i Y: %i", tileX, tileY);
+    TraceLog(LOG_DEBUG, "Registering interaction on Tile: X: %i Y: %i", tileX, tileY);
 
-    switch (tile.type)
-    {
-    case DOOR:
-        TraceLog(LOG_DEBUG, "Handling DOOR");
-        gameEvents->interactinoRequested = true;
-        gameEvents->tileX = tileX;
-        gameEvents->tileY = tileY;
-        break;
-    default:
-        TraceLog(LOG_WARNING, "Interaction not handled");
-        break;
-    } 
+    gameEvents->interactinoRequested = true;
+    gameEvents->tileX = tileX;
+    gameEvents->tileY = tileY;
 }
 
 void updatePlayerFacingPos(Player *player) {
@@ -145,7 +136,7 @@ void updatePlayer(Player *player, const Map *map, GameEvents *gameEvents, const 
     }
 
     if (interaction) { 
-        handleInteraction(player, map, newPlayerPos, gameEvents);
+        registerInteraction(player, map, newPlayerPos, gameEvents);
         interaction = false;
     }
 

@@ -67,12 +67,13 @@ void freeDungeon(Dungeon *dungeon) {
     if (dungeon == NULL) return;
     for (size_t i = 0; i < dungeon->roomCount; i++) {
         free(dungeon->rooms[i].doors);
+        free(dungeon->rooms[i].chests);
     }
 
     free(dungeon->rooms);
 
     dungeon->rooms = NULL;
-    dungeon->roomCount = 0;
+    dungeon->roomCount = 0;  
 }
 
 int loadDungeonConfig(Dungeon *dungeon) {
@@ -168,6 +169,42 @@ int loadDungeonConfig(Dungeon *dungeon) {
             TraceLog(LOG_DEBUG, "Found Doom ID: %0.f", id->valuedouble);
         }
 
+        const cJSON *chestsJson = cJSON_GetObjectItemCaseSensitive(roomJson, "chests");
+        if (!cJSON_IsArray(chestsJson)) goto error;
+
+        room->chestCount = (size_t)cJSON_GetArraySize(chestsJson);
+        TraceLog(LOG_DEBUG, "Chest Count: %i", room->chestCount);
+
+        if (room->chestCount > 0) {
+            room->chests = calloc(room->chestCount, sizeof(Chest));
+            if (room->chests == NULL) goto error;
+        }
+
+        size_t k = 0;
+        const cJSON *chestJson;
+
+        cJSON_ArrayForEach(chestJson, chestsJson) { 
+            if (!cJSON_IsObject(chestJson)) goto error;
+
+            const cJSON *idJson = cJSON_GetObjectItemCaseSensitive(chestJson, "id");
+            if (!cJSON_IsNumber(idJson)) goto error;
+
+            const cJSON *xJson = cJSON_GetObjectItemCaseSensitive(chestJson, "x");
+            if (!cJSON_IsNumber(xJson)) goto error;
+
+            const cJSON *yJson = cJSON_GetObjectItemCaseSensitive(chestJson, "y");
+            if (!cJSON_IsNumber(yJson)) goto error;
+
+            Chest *chest = &room->chests[k];
+            chest->id = (int)idJson->valuedouble;
+            chest->x = (int)xJson->valuedouble;
+            chest->y = (int)yJson->valuedouble;
+            chest->isOpen = false;
+
+            k++;
+            TraceLog(LOG_DEBUG, "Found Chest ID: %0.f", idJson->valuedouble);
+        }
+
         i++;
         TraceLog(LOG_DEBUG, "Found Room ID: %0.f", id->valuedouble);
     }
@@ -196,7 +233,7 @@ const Room *getRoomById(const Dungeon *dungeon, int id) {
     return NULL;
 }
 
-const Room *getCurrentRoom(const Dungeon *dungeon) {
+Room *getCurrentRoom(const Dungeon *dungeon) {
     int currentRoomId = dungeon->currentRoomId;
     return getRoomById(dungeon, dungeon->currentRoomId);
 }
