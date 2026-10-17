@@ -96,7 +96,7 @@ void handleInteraction(const Player *player, const Map *map, Vector2 position, G
     {
     case DOOR:
         TraceLog(LOG_DEBUG, "Handling DOOR");
-        gameEvents->roomChangedRequested = true;
+        gameEvents->interactinoRequested = true;
         gameEvents->tileX = tileX;
         gameEvents->tileY = tileY;
         break;

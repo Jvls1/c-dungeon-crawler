@@ -4,7 +4,7 @@
 #include <stdbool.h>
 
 typedef struct {
-    bool roomChangedRequested;
+    bool interactinoRequested;
     int tileX;
     int tileY;
 } GameEvents;

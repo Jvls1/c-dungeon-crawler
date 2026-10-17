@@ -15,6 +15,7 @@ clang \
     src/room.c \
     src/door.c \
     src/dungeon.c \
+    src/game.c \
     libs/cJSON.c \
     -o build/game \
     $(pkg-config --cflags --libs raylib)
