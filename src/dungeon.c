@@ -79,6 +79,20 @@ int parseKeyType(char *value, KeyType *result) {
     return 0;
 }
 
+int parseItemType(char *value, ItemType *result) { 
+    if (strcmp(value, "ITEM_BRONZE_KEY") == 0) {
+        *result = ITEM_BRONZE_KEY;
+    } else if (strcmp(value, "ITEM_SILVER_KEY") == 0) {
+        *result = ITEM_SILVER_KEY;
+    } else if (strcmp(value, "ITEM_GOLD_KEY") == 0) {
+        *result = ITEM_GOLD_KEY;
+    } else {
+        return -1;
+    }
+
+    return 0;
+}
+
 void freeDungeon(Dungeon *dungeon) {
     if (dungeon == NULL) return;
     for (size_t i = 0; i < dungeon->roomCount; i++) {
@@ -223,18 +237,31 @@ int loadDungeonConfig(Dungeon *dungeon) {
             const cJSON *yJson = cJSON_GetObjectItemCaseSensitive(chestJson, "y");
             if (!cJSON_IsNumber(yJson)) goto error;
 
+            const cJSON *itemIdJson = cJSON_GetObjectItemCaseSensitive(chestJson, "item_id");
+            if (!cJSON_IsString(itemIdJson)) goto error;
+
+            const cJSON *quantityJson = cJSON_GetObjectItemCaseSensitive(chestJson, "quantity");
+            if (!cJSON_IsNumber(quantityJson)) goto error;
+
+
             Chest *chest = &room->chests[k];
             chest->id = (int)idJson->valuedouble;
             chest->x = (int)xJson->valuedouble;
             chest->y = (int)yJson->valuedouble;
             chest->isOpen = false;
+            chest->quantity = (int)quantityJson->valuedouble;
+
+            if (parseItemType(itemIdJson->valuestring, &chest->itemType) == -1) {
+                TraceLog(LOG_ERROR, "Invalid ItemType");
+                goto error;
+            }
 
             k++;
-            TraceLog(LOG_DEBUG, "Found Chest ID: %0.f", idJson->valuedouble);
+            TraceLog(LOG_DEBUG, "ChestId: %0.f", idJson->valuedouble);
         }
 
         i++;
-        TraceLog(LOG_DEBUG, "Found Room ID: %0.f", id->valuedouble);
+        TraceLog(LOG_DEBUG, "RoomId: %0.f", id->valuedouble);
     }
 
     dungeon->currentRoomId = dungeon->rooms[0].id;

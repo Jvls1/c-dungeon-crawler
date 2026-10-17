@@ -5,6 +5,7 @@
 #include "map.h"
 #include "game_events.h"
 #include "spawn_offset.h"
+#include "inventory.h"
 
 typedef enum {
     FACING_UP,
@@ -18,11 +19,8 @@ typedef struct {
     Vector2 direction;
     Facing facing;
     float speed;
-    
-    //TODO: move this to inventory when the time come
-    bool hasBronzeKey;
-    bool hasSilverKey;
-    bool hasGoldKey;
+   
+    Inventory inventory;
 } Player;
 
 int initPlayerPosition(Player *player, const Map *map, SpawnOffset spawnOffset);

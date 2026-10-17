@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 int handleDoorInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents);
-int handleChestInteraction(Dungeon *dungeon, GameEvents *gameEvents);
+int handleChestInteraction(Player *player, Dungeon *dungeon, GameEvents *gameEvents);
 
 int handleInterationRequest(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents) { 
     gameEvents->interactinoRequested = false;
@@ -21,7 +21,7 @@ int handleInterationRequest(Player *player, Map *map, Dungeon *dungeon, GameEven
     case DOOR:
         return handleDoorInteraction(player, map, dungeon, gameEvents);
     case CHEST: 
-        return handleChestInteraction(dungeon, gameEvents);
+        return handleChestInteraction(player, dungeon, gameEvents);
         break;
     default:
         TraceLog(LOG_WARNING, "Interactable without interaction function");
@@ -30,6 +30,21 @@ int handleInterationRequest(Player *player, Map *map, Dungeon *dungeon, GameEven
 
 
     return 0;
+}
+
+ItemType getKeyItemType(KeyType keyType) {
+    switch (keyType)
+    {
+    case KEY_BRONZE:
+        return ITEM_BRONZE_KEY; 
+    case KEY_SILVER:
+        return ITEM_SILVER_KEY;
+    case KEY_GOLD:
+        return ITEM_GOLD_KEY;
+    default:
+        return ITEM_NONE;
+        break;
+    } 
 }
 
 int handleDoorInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents) { 
@@ -47,35 +62,6 @@ int handleDoorInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents
         return -1;
     }
 
-    if (interactionDoor->isLocked) {
-        TraceLog(LOG_DEBUG, "Door locked, need key of type %i", interactionDoor->requiredKey);
-
-        bool hasKey;
-
-        switch (interactionDoor->requiredKey)
-        {
-        case KEY_BRONZE:
-            hasKey = player->hasBronzeKey;
-            break; 
-        case KEY_SILVER:
-            hasKey = player->hasSilverKey;
-            break;
-        case KEY_GOLD: 
-            hasKey = player->hasGoldKey;
-            break;
-        default:
-            TraceLog(LOG_ERROR, "Invalid Key Type");
-            return -1;
-        }
-
-        if (!hasKey) {
-            TraceLog(LOG_INFO, "Need Key to continue");
-            return 0;
-        }
-
-        TraceLog(LOG_DEBUG, "Door opened");
-    }
-
     Room *destinationRoom = getRoomById(dungeon, interactionDoor->destinationRoomId);
 
     if (destinationRoom == NULL) {
@@ -84,10 +70,12 @@ int handleDoorInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents
     }
 
     Door *destinationDoor = findDoorById(destinationRoom, interactionDoor->destinationDoorId);
+
     if (destinationDoor == NULL) {
         TraceLog(LOG_ERROR, "Destination Door not found");
         return -1;
     }
+
     Map nextMap = {0};
 
     if (readMap(&nextMap, destinationRoom->map) == -1) {
@@ -110,6 +98,29 @@ int handleDoorInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents
         return -1;
     }
 
+    if (interactionDoor->isLocked) {
+        ItemType requiredItem = getKeyItemType(interactionDoor->requiredKey);
+
+        if (requiredItem == ITEM_NONE) {
+            TraceLog(LOG_ERROR, "Invalid required key type");
+            free(nextMap.tiles);
+            return -1;
+        }
+
+        TraceLog(LOG_DEBUG, "Door locked, need key of type %i", interactionDoor->requiredKey);
+
+        unsigned int keyCount = nextPlayer.inventory.itemCounts[interactionDoor->requiredKey];
+
+        if (keyCount == 0) {
+            TraceLog(LOG_INFO, "Need Key to continue");
+            return 0;
+        }
+
+        nextPlayer.inventory.itemCounts[interactionDoor->requiredKey]--;
+
+        TraceLog(LOG_DEBUG, "Door opened");
+    }
+
     free(map->tiles);
 
     destinationDoor->isLocked = false;
@@ -122,7 +133,7 @@ int handleDoorInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents
     return 0;
 }
 
-int handleChestInteraction(Dungeon *dungeon, GameEvents *gameEvents) { 
+int handleChestInteraction(Player *player, Dungeon *dungeon, GameEvents *gameEvents) { 
     Room *currentRoom = getCurrentRoom(dungeon);
 
     if (currentRoom == NULL) { 
@@ -143,6 +154,7 @@ int handleChestInteraction(Dungeon *dungeon, GameEvents *gameEvents) {
     }
 
     chest->isOpen = true;
+    player->inventory.itemCounts[chest->itemType] += chest->quantity;
 
     return 0;
 }

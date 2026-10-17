@@ -30,6 +30,16 @@ void drawCurrentPosition(const Player *player) {
     DrawText(TextFormat("[DEBUG] MapPos PlayerX: %i PlayerY: %i", xTilePosition, yTilePosition), 10, 50, 20, RAYWHITE);
     DrawText(TextFormat("[DEBUG] Direction DirX: %.2f DirY: %.2f", player->direction.x, player->direction.y), 10, 70, 20, RAYWHITE);
     DrawText(TextFormat("[DEBUG] Facing: %i", (int)player->facing), 10, 90, 20, RAYWHITE);
+    DrawText(
+        TextFormat(
+            "[DEBUG] Bronze Key: %i Silver Key: %i, Gold Key: %i",
+            player->inventory.itemCounts[1],
+            player->inventory.itemCounts[2],
+            player->inventory.itemCounts[3]),
+        10,
+        110,
+        20,
+        RAYWHITE);
 }
 
 void drawFps() {
@@ -79,9 +89,14 @@ int main(void){
         return 1;
     }
 
+    Inventory inventory = {
+        .itemCounts[ITEM_BRONZE_KEY] = 1,
+        .itemCounts[ITEM_SILVER_KEY] = 1,
+        .itemCounts[ITEM_GOLD_KEY] = 1,
+    };
     Player player = {
         .speed = 250.f,
-        .hasBronzeKey = true
+        .inventory = inventory
     };
 
     GameEvents gameEvents = {0};

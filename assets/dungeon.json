@@ -20,7 +20,9 @@
                     "id": 1, 
                     "x": 9,
                     "y": 4,
-                    "open": false
+                    "open": false,
+                    "item_id": "ITEM_BRONZE_KEY",
+                    "quantity": 1
                 }
             ]
         },
