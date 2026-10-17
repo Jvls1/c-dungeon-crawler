@@ -8,6 +8,7 @@
 #include "room.h"
 #include "dungeon.h"
 #include "game.h"
+#include "game_state.h"
 
 void CDungeonCrawlerLog(int msgType, const char *text, va_list args) {
     switch (msgType)
@@ -44,19 +45,6 @@ void drawCurrentPosition(const Player *player) {
 
 void drawFps() {
     DrawText(TextFormat("FPS: %i", GetFPS()), 10, 10, 20, RAYWHITE);
-}
-
-void draw(const Player *player, const Map *map) {
-    BeginDrawing();
-
-    ClearBackground(BLACK);
-
-    drawMap(map);
-    drawPlayer(player);
-    drawFps();
-    drawCurrentPosition(player);
-
-    EndDrawing();
 }
 
 void update(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents) {
@@ -106,9 +94,33 @@ int main(void){
         return 1;
     }
 
+    GameState gameState = GAME_STATE_PLAYING;
+
     while (!WindowShouldClose()) {
-        update(&player, &map, &dungeon, &gameEvents);
-        draw(&player, &map);
+        if (gameState == GAME_STATE_PLAYING) {
+            update(&player, &map, &dungeon, &gameEvents);
+            if (isVictoryConditionMet(&dungeon)) {
+                gameState = GAME_STATE_VICTORY;
+            }
+        }
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        drawMap(&map);
+        drawPlayer(&player);
+        drawFps();
+        drawCurrentPosition(&player);
+
+        if (gameState == GAME_STATE_VICTORY) {
+            DrawText(
+                "VICTORY",
+                400, 200,
+                40,
+                GOLD);
+        }
+
+        EndDrawing();
     }
 
     freeDungeon(&dungeon);

@@ -6,5 +6,6 @@
 #include "dungeon.h"
 
 int handleInterationRequest(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents);
+bool isVictoryConditionMet(const Dungeon *dungeon);
 
 #endif

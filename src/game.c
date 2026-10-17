@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#define FINAL_ROOM_ID 3
+
 int handleDoorInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents);
 int handleChestInteraction(Player *player, Dungeon *dungeon, GameEvents *gameEvents);
 
@@ -157,4 +159,8 @@ int handleChestInteraction(Player *player, Dungeon *dungeon, GameEvents *gameEve
     player->inventory.itemCounts[chest->itemType] += chest->quantity;
 
     return 0;
+}
+
+bool isVictoryConditionMet(const Dungeon *dungeon) {
+    return dungeon->currentRoomId == FINAL_ROOM_ID;
 }
