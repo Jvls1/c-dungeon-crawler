@@ -18,6 +18,11 @@ typedef struct {
     Vector2 direction;
     Facing facing;
     float speed;
+    
+    //TODO: move this to inventory when the time come
+    bool hasBronzeKey;
+    bool hasSilverKey;
+    bool hasGoldKey;
 } Player;
 
 int initPlayerPosition(Player *player, const Map *map, SpawnOffset spawnOffset);

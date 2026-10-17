@@ -22,8 +22,8 @@ typedef struct {
     size_t chestCount;
 } Room;
 
-const Door *findDoorByEvent(const Room *room, const GameEvents *gameEvents);
-const Door *findDoorById(const Room *room, const int doorId);
+Door *findDoorByEvent(const Room *room, const GameEvents *gameEvents);
+Door *findDoorById(const Room *room, const int doorId);
 Chest *findChestByEvent(const Room *room, const GameEvents *gameEvents);
 
 #endif

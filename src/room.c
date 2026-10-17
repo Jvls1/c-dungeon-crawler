@@ -1,6 +1,6 @@
 #include "room.h"
 
-const Door *findDoorByEvent(const Room *room, const GameEvents *gameEvents) {
+Door *findDoorByEvent(const Room *room, const GameEvents *gameEvents) {
     Door *door = NULL;
     for (int i = 0; i < room->doorCount; i++) {
         if (room->doors[i].x == gameEvents->tileX &&
@@ -13,7 +13,7 @@ const Door *findDoorByEvent(const Room *room, const GameEvents *gameEvents) {
     return door;
 }
 
-const Door *findDoorById(const Room *room, const int doorId) { 
+Door *findDoorById(const Room *room, const int doorId) { 
     Door *door = NULL;
     for (int i = 0; i < room->doorCount; i++) { 
         if (room->doors[i].id != doorId) continue;

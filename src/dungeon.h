@@ -12,6 +12,6 @@ typedef struct {
 int loadDungeonConfig(Dungeon *dungeon);
 void freeDungeon(Dungeon *dungeon);
 Room *getCurrentRoom(const Dungeon *dungeon);
-const Room *getRoomById(const Dungeon *dungeon, int id);
+Room *getRoomById(const Dungeon *dungeon, int id);
 
 #endif

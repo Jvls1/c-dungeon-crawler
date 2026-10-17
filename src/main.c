@@ -80,10 +80,11 @@ int main(void){
     }
 
     Player player = {
-        .speed = 250.f
+        .speed = 250.f,
+        .hasBronzeKey = true
     };
 
-    GameEvents gameEvents;
+    GameEvents gameEvents = {0};
     if (initPlayerPosition(&player, &map, UP) == -1) {
         TraceLog(LOG_ERROR, "Cannot initialize player position");
         CloseWindow();

@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-int handleRoomInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents);
+int handleDoorInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents);
 int handleChestInteraction(Dungeon *dungeon, GameEvents *gameEvents);
 
 int handleInterationRequest(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents) { 
@@ -19,7 +19,7 @@ int handleInterationRequest(Player *player, Map *map, Dungeon *dungeon, GameEven
     switch (interactionTile.type)
     {
     case DOOR:
-        return handleRoomInteraction(player, map, dungeon, gameEvents);
+        return handleDoorInteraction(player, map, dungeon, gameEvents);
     case CHEST: 
         return handleChestInteraction(dungeon, gameEvents);
         break;
@@ -32,35 +32,62 @@ int handleInterationRequest(Player *player, Map *map, Dungeon *dungeon, GameEven
     return 0;
 }
 
-int handleRoomInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents) { 
-    const Room *currentRoom = getCurrentRoom(dungeon);
+int handleDoorInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents) { 
+    Room *currentRoom = getCurrentRoom(dungeon);
 
     if (currentRoom == NULL) { 
         TraceLog(LOG_ERROR, "Current Room not found");
         return -1;
     }
 
-    const Door *door = findDoorByEvent(currentRoom, gameEvents);
+    Door *interactionDoor = findDoorByEvent(currentRoom, gameEvents);
 
-    if (door == NULL) {
-        TraceLog(LOG_ERROR, "Destination Roor not found");
+    if (interactionDoor == NULL) {
+        TraceLog(LOG_ERROR, "Destination Door not found");
         return -1;
     }
 
+    if (interactionDoor->isLocked) {
+        TraceLog(LOG_DEBUG, "Door locked, need key of type %i", interactionDoor->requiredKey);
 
-    const Room *destinationRoom = getRoomById(dungeon, door->destinationRoomId);
+        bool hasKey;
+
+        switch (interactionDoor->requiredKey)
+        {
+        case KEY_BRONZE:
+            hasKey = player->hasBronzeKey;
+            break; 
+        case KEY_SILVER:
+            hasKey = player->hasSilverKey;
+            break;
+        case KEY_GOLD: 
+            hasKey = player->hasGoldKey;
+            break;
+        default:
+            TraceLog(LOG_ERROR, "Invalid Key Type");
+            return -1;
+        }
+
+        if (!hasKey) {
+            TraceLog(LOG_INFO, "Need Key to continue");
+            return 0;
+        }
+
+        TraceLog(LOG_DEBUG, "Door opened");
+    }
+
+    Room *destinationRoom = getRoomById(dungeon, interactionDoor->destinationRoomId);
 
     if (destinationRoom == NULL) {
         TraceLog(LOG_ERROR, "Fail to find destination room");
         return -1;
     }
 
-    const Door *destinationDoor = findDoorById(destinationRoom, door->destinationDoorId);
+    Door *destinationDoor = findDoorById(destinationRoom, interactionDoor->destinationDoorId);
     if (destinationDoor == NULL) {
         TraceLog(LOG_ERROR, "Destination Door not found");
         return -1;
     }
-
     Map nextMap = {0};
 
     if (readMap(&nextMap, destinationRoom->map) == -1) {
@@ -75,7 +102,7 @@ int handleRoomInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents
             &nextMap, 
             destinationDoor->x, 
             destinationDoor->y, 
-            door->spawnOffset
+            interactionDoor->spawnOffset
         ) == -1)
     {
         TraceLog(LOG_ERROR, "Cannot change player position");
@@ -84,6 +111,9 @@ int handleRoomInteraction(Player *player, Map *map, Dungeon *dungeon, GameEvents
     }
 
     free(map->tiles);
+
+    destinationDoor->isLocked = false;
+    interactionDoor->isLocked = false;
 
     *map = nextMap;
     *player = nextPlayer;

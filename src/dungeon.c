@@ -63,6 +63,22 @@ int parseSpawnOffset(char *value, SpawnOffset *result) {
     return 0;
 }
 
+int parseKeyType(char *value, KeyType *result) {
+    if (strcmp(value, "NONE") == 0) {
+        *result = KEY_NONE;
+    } else if (strcmp(value, "BRONZE") == 0) {
+        *result = KEY_BRONZE;
+    } else if (strcmp(value, "SILVER") == 0) {
+        *result = KEY_SILVER;
+    } else if (strcmp(value, "GOLD") == 0) {
+        *result = KEY_GOLD;
+    } else {
+        return -1;
+    }
+
+    return 0;
+}
+
 void freeDungeon(Dungeon *dungeon) {
     if (dungeon == NULL) return;
     for (size_t i = 0; i < dungeon->roomCount; i++) {
@@ -153,15 +169,27 @@ int loadDungeonConfig(Dungeon *dungeon) {
             const cJSON *destinationSpawnOffset = cJSON_GetObjectItemCaseSensitive(door, "destinationSpawnOffset");
             if (!cJSON_IsString(destinationSpawnOffset)) goto error;
 
+            const cJSON *lockedJson = cJSON_GetObjectItemCaseSensitive(door, "locked");
+            if (!cJSON_IsBool(lockedJson)) goto error;
+
+            const cJSON *requiredKeyJson = cJSON_GetObjectItemCaseSensitive(door, "requiredKey");
+            if (!cJSON_IsString(requiredKeyJson)) goto error;
+
             Door *door = &room->doors[j];
             door->id = (int)id->valuedouble;
             door->x = (int)x->valuedouble;
             door->y = (int)y->valuedouble;
             door->destinationRoomId = (int)destinationRoomId->valuedouble;
             door->destinationDoorId = (int)destinationDoorId->valuedouble;
+            door->isLocked = cJSON_IsTrue(lockedJson);
 
             if (parseSpawnOffset(destinationSpawnOffset->valuestring, &door->spawnOffset) == -1) {
                 TraceLog(LOG_ERROR, "Invalid spawn offset");
+                goto error;
+            }
+
+            if (parseKeyType(requiredKeyJson->valuestring, &door->requiredKey) == -1) {
+                TraceLog(LOG_ERROR, "Invalid key type");
                 goto error;
             }
 
@@ -221,7 +249,7 @@ error:
     return -1;
 }
 
-const Room *getRoomById(const Dungeon *dungeon, int id) { 
+Room *getRoomById(const Dungeon *dungeon, int id) { 
     for (int i = 0; i < dungeon->roomCount; i++) {
         if (dungeon->rooms[i].id != id) {
             continue;

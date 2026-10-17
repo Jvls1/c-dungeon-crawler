@@ -10,7 +10,9 @@
                     "y": 0,
                     "destinationRoomId": 2,
                     "destinationDoorId": 3,
-                    "destinationSpawnOffset": "UP"
+                    "destinationSpawnOffset": "UP",
+                    "locked": false,
+                    "requiredKey": "NONE"
                 }
             ],
             "chests": [
@@ -32,7 +34,9 @@
                     "y": 8,
                     "destinationRoomId": 3,
                     "destinationDoorId": 4,
-                    "destinationSpawnOffset": "RIGHT"
+                    "destinationSpawnOffset": "RIGHT",
+                    "locked": true,
+                    "requiredKey": "BRONZE"
                 },
                 {
                     "id": 3,
@@ -40,7 +44,9 @@
                     "y": 9,
                     "destinationRoomId": 1,
                     "destinationDoorId": 1,
-                    "destinationSpawnOffset": "DOWN"
+                    "destinationSpawnOffset": "DOWN",
+                    "locked": false,
+                    "requiredKey": "NONE"
                 }
             ],
             "chests": []
@@ -55,7 +61,9 @@
                     "y": 8,
                     "destinationRoomId": 2,
                     "destinationDoorId": 2,
-                    "destinationSpawnOffset": "LEFT"
+                    "destinationSpawnOffset": "LEFT",
+                    "locked": true,
+                    "requiredKey": "BRONZE"
                 }
             ],
             "chests": []
