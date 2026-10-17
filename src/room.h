@@ -2,21 +2,23 @@
 #define ROOM_H
 
 #include <raylib.h>
-#include "player.h"
+#include <stddef.h>
+#include "spawn_offset.h"
+#include "game_events.h"
+#include "door.h"
+
+#define ROOM_H 
+#define MAP_NAME_SIZE 32
 
 typedef struct {
-    int x;
-    int y;
-    Facing entryFacing;
-} DoorConnection;
-
-typedef struct {
+    int id;
+    char map[MAP_NAME_SIZE];
     bool loaded;
-    DoorConnection *doors;
-    Facing entryFacing;
+    Door *doors;
+    size_t doorCount;
 } Room;
 
-int handleRoomChange(Room *room, const Player *player, const Map *map);
-int changeRoom(Room *room);
+const Door *findDoorByEvent(const Room *room, const GameEvents *gameEvents);
+const Door *findDoorById(const Room *room, const int doorId);
 
 #endif

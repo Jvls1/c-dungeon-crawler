@@ -6,6 +6,7 @@
 #include "player.h"
 #include "map.h"
 #include "room.h"
+#include "dungeon.h"
 
 void CDungeonCrawlerLog(int msgType, const char *text, va_list args) {
     switch (msgType)
@@ -47,10 +48,77 @@ void draw(const Player *player, const Map *map) {
     EndDrawing();
 }
 
-void update(Player *player, Map *map) {
+// TODO: move this to other file
+int handleRoomTransition(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents) {
+    gameEvents->roomChangedRequested = false;
+    const Room *currentRoom = getCurrentRoom(dungeon);
+
+    if (currentRoom == NULL) { 
+        TraceLog(LOG_ERROR, "Current Room not found");
+        return -1;
+    }
+
+    const Door *door = findDoorByEvent(currentRoom, gameEvents);
+
+    if (door == NULL) {
+        TraceLog(LOG_ERROR, "Destination Roor not found");
+        return -1;
+    }
+
+
+    const Room *destinationRoom = getRoomById(dungeon, door->destinationRoomId);
+
+    if (destinationRoom == NULL) {
+        TraceLog(LOG_ERROR, "Fail to find destination room");
+        return -1;
+    }
+
+    const Door *destinationDoor = findDoorById(destinationRoom, door->destinationDoorId);
+    if (destinationDoor == NULL) {
+        TraceLog(LOG_ERROR, "Destination Door not found");
+        return -1;
+    }
+
+    Map nextMap = {0};
+
+    if (readMap(&nextMap, destinationRoom->map) == -1) {
+        TraceLog(LOG_ERROR, "Error reading map");
+        return -1;
+    }
+
+    Player nextPlayer = *player;
+
+    if (changePlayerPosition(
+            &nextPlayer, 
+            &nextMap, 
+            destinationDoor->x, 
+            destinationDoor->y, 
+            door->spawnOffset
+        ) == -1)
+    {
+        TraceLog(LOG_ERROR, "Cannot change player position");
+        free(nextMap.tiles);
+        return -1;
+    }
+
+    free(map->tiles);
+
+    *map = nextMap;
+    *player = nextPlayer;
+    dungeon->currentRoomId = destinationRoom->id;
+
+    return 0;
+}
+
+void update(Player *player, Map *map, Dungeon *dungeon, GameEvents *gameEvents) {
     const float dt = GetFrameTime();
-    updatePlayer(player, map, dt);
-    // handleRoomChange();
+    updatePlayer(player, map, gameEvents, dt);
+
+    if (gameEvents->roomChangedRequested) {
+        if (handleRoomTransition(player, map, dungeon, gameEvents) == -1) {
+            TraceLog(LOG_ERROR, "Error handling room transition");
+        }
+    }
 }
 
 int main(void){
@@ -60,26 +128,35 @@ int main(void){
 
     SetTargetFPS(60);
 
+    Dungeon dungeon;
+    if (loadDungeonConfig(&dungeon) == -1) { 
+        CloseWindow();
+        return 1;
+    }
+
     Map map;
-    if (readMap(&map, "room_01.txt") == -1) {
+    if (readMap(&map, dungeon.rooms[0].map) == -1) {
         CloseWindow();
         return 1;
     }
 
     Player player = {
-        .speed = 150.f
+        .speed = 250.f
     };
-    if (initPlayerPosition(&player, &map) == -1) {
+
+    GameEvents gameEvents;
+    if (initPlayerPosition(&player, &map, UP) == -1) {
         TraceLog(LOG_ERROR, "Cannot initialize player position");
         CloseWindow();
         return 1;
     }
 
     while (!WindowShouldClose()) {
-        update(&player, &map);
+        update(&player, &map, &dungeon, &gameEvents);
         draw(&player, &map);
     }
 
+    freeDungeon(&dungeon);
     free(map.tiles);
     map.tiles = NULL;
 

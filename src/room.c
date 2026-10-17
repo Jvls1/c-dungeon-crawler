@@ -1,44 +1,25 @@
 #include "room.h"
 
-const DoorConnection room1Doors[] = {
-    {0, 10, FACING_UP}
-};
-
-int initializeRoom(Room *room, const Map *map) {
-    for (int y = 0; y < map->height; y++) {
-        for (int x = 0; x < map->width; x++) {
-            int index = y * map->width + x;
-            Tile tile = map->tiles[index];
-
-            if (tile.type != DOOR) {
-                continue;
-            }
-            TraceLog(LOG_DEBUG, "X: %i, Y: %i", x, y);
+const Door *findDoorByEvent(const Room *room, const GameEvents *gameEvents) {
+    Door *door = NULL;
+    for (int i = 0; i < room->doorCount; i++) {
+        if (room->doors[i].x == gameEvents->tileX &&
+            room->doors[i].y == gameEvents->tileY
+        ) {
+            door = &room->doors[i];
+            TraceLog(LOG_INFO, "DestinationRoomId: %i", door->destinationRoomId);
         }
     }
+    return door;
 }
 
-int handleRoomChange(Room *room, const Player *player, const Map *map) {
-    // if (room.loaded) return 0;
-    // char roomName[32];
-    // snprintf(
-    //     roomName,
-    //     sizeof(roomName),
-    //     "room_%02d.txt",
-    //     room.number
-    // );
-    // if (readMap(roomName) == -1) {
-    //     TraceLog(LOG_ERROR, "Unable to load new room");
-    //     return -1;
-    // };
-    // if (initPlayerPosition() == -1) {
-    //     TraceLog(LOG_ERROR, "Cannot initialize player position");
-    //     return -1;
-    // }
-    // room.loaded = true;
-    return 0;
-}
+const Door *findDoorById(const Room *room, const int doorId) { 
+    Door *door = NULL;
+    for (int i = 0; i < room->doorCount; i++) { 
+        if (room->doors[i].id != doorId) continue;
 
-int changeRoom(Room *room) {
-    room->loaded = false;
+        door = &room->doors[i];
+        TraceLog(LOG_INFO, "DestinationDoorId: %i", door->id);
+    }
+    return door;
 }

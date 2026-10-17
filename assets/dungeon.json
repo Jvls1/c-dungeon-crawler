@@ -1,0 +1,54 @@
+{
+    "rooms": [
+        {
+            "id": 1,
+            "map": "room_01.txt",
+            "doors": [
+                {
+                    "id": 1,
+                    "x": 9,
+                    "y": 0,
+                    "destinationRoomId": 2,
+                    "destinationDoorId": 3,
+                    "destinationSpawnOffset": "UP"
+                }
+            ]
+        },
+        {
+            "id": 2,
+            "map": "room_02.txt",
+            "doors": [
+                {
+                    "id": 2,
+                    "x": 19,
+                    "y": 8,
+                    "destinationRoomId": 3,
+                    "destinationDoorId": 4,
+                    "destinationSpawnOffset": "RIGHT"
+                },
+                {
+                    "id": 3,
+                    "x": 9,
+                    "y": 9,
+                    "destinationRoomId": 1,
+                    "destinationDoorId": 1,
+                    "destinationSpawnOffset": "DOWN"
+                }
+            ]
+        },
+        {
+            "id": 3,
+            "map": "room_03.txt",
+            "doors": [ 
+                {
+                    "id": 4,
+                    "x": 0,
+                    "y": 8,
+                    "destinationRoomId": 2,
+                    "destinationDoorId": 2,
+                    "destinationSpawnOffset": "LEFT"
+                }
+            ]
+        }
+    ]
+}

@@ -71,6 +71,10 @@ int readMap(Map *map, const char *fileName) {
 
     TraceLog(LOG_DEBUG, "Map width '%i'", expectedWidth);
     TraceLog(LOG_DEBUG, "Map height '%i'", height);
+    if (expectedWidth == 0 || height == 0) {
+        TraceLog(LOG_ERROR, "Invalid map dimensions");
+        return -1;
+    }
     size_t totalTiles = (size_t) expectedWidth * (size_t) height;
     map->tiles = malloc(totalTiles * sizeof *map->tiles);
     if (map->tiles == NULL) {
@@ -106,7 +110,7 @@ int readMap(Map *map, const char *fileName) {
         map->tiles[i] = tile;
         i++;
     }
-    if (i != (expectedWidth * height)) {
+    if (i != totalTiles) {
         TraceLog(LOG_ERROR, "number of tiles different");
         free(map->tiles);
         map->tiles = NULL;

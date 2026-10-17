@@ -8,10 +8,14 @@ clang \
     -std=c17 \
     -Wall \
     -Wextra \
+    -Ilibs \
     src/main.c \
     src/player.c \
     src/map.c \
     src/room.c \
+    src/door.c \
+    src/dungeon.c \
+    libs/cJSON.c \
     -o build/game \
     $(pkg-config --cflags --libs raylib)
 

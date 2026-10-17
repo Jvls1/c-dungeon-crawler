@@ -3,6 +3,8 @@
 
 #include <raylib.h>
 #include "map.h"
+#include "game_events.h"
+#include "spawn_offset.h"
 
 typedef enum {
     FACING_UP,
@@ -18,8 +20,9 @@ typedef struct {
     float speed;
 } Player;
 
-int initPlayerPosition(Player *player, const Map *map);
-void updatePlayer(Player *player, const Map *map, const float dt);
+int initPlayerPosition(Player *player, const Map *map, SpawnOffset spawnOffset);
+int changePlayerPosition(Player *player, const Map *map, int x, int y, SpawnOffset spawnOffset);
+void updatePlayer(Player *player, const Map *map, GameEvents *gameEvents, float dt);
 void drawPlayer(const Player *player);
 
 #endif
